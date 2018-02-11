@@ -1,7 +1,7 @@
 # NodeMCU Wifi Enabled Power Outlet
 In order to switch on a printer (or any other device for that matter) without getting up from my computer I built a power outlet, that can be switched on and off through a simple web interface. 
 
-<img src="/images/ScreenShot_Webinterface.png" width="250"> <img src="/images/IMG_0148.JPG" width="350"><img src="/images/IMG_0149.JPG" width="350">
+<img src="/images/ScreenShot_Webinterface.png" width="250"> <img src="/images/IMG_0148.JPG">
 
 # Basic idea
 The basic idea is to setup a minimal http-Server on a NodeMCU that hosts a website, which can pull the current status of the power outlet and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the outlet without an internet connection as well.
@@ -31,6 +31,7 @@ I will be using parts and constructs which would far exceed the scope of this tu
 
 # The Circuit
 >:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
+<img src="/images/IMG_0149.JPG">
 
 Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
 See the fritzing diagram below for more detail on the circuit (The resistor values might change for your setup depending on the transistor and LED models you use):
@@ -309,7 +310,7 @@ Now all we need to do is connect the NodeMCU to our computer via USB and flash t
 
 
 # Final notes
-Now that's basically it, we can switch our relay from the web (Yay!). 
+Now that's basically it, we can switch our relay from the web (Yay!). I put my components in a (rather big) box I had lying around, to hide the rather lazy soldering work of mine ;)
 
 If you have access to the router of your network you might want to setup a permanent IP-address for the NodeMCU. That way people that will use the WebInterface can save the IP in a bookmark or something similar without having to worry about it changing everytime the DHCP server decides to renew the Nodes lease.
 
