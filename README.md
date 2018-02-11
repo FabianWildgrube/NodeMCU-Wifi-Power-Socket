@@ -17,7 +17,7 @@ The NodeMCU will listen for http-requests and switch the relay on calls from the
 * [Jumper cables](https://www.ebay.de/itm/40-x-10cm-20cm-o-30cm-Jumper-Kabel-Dupont-Cable-Breadboard-Wire-f-Arduino/252355489428)
 * [5V Power outlet](http://www.ebay.de/itm/Universal-Netzteil-3V-4-5V-5V-6V-7-5V-9V-12V-300mA-3-6W-mit-USB-Adapter-goobay/331649352035)
 * Power cable
-* [Chandelier clamps](http://www.ebay.de/itm/Lusterklemmen-a-12-Lusterklemme-Verbindungsklemme-Klemme-Listerklemme-Lampe/253095147132)
+* [Chandelier clamps](http://www.ebay.de/itm/Lusterklemmen-a-12-Lusterklemme-Verbindungsklemme-Klemme-Listerklemme-Lampe/253095147132) (for safe connections with the mains power cable)
 
 # Knowledge Requirements
 I will be using parts and constructs which would far exceed the scope of this tutorial to explain. If you are not familiar with some of these things, here is a list of links that helped me a lot:
@@ -25,9 +25,11 @@ I will be using parts and constructs which would far exceed the scope of this tu
 * [Transistors](https://www.youtube.com/watch?v=UdAnUc7nXYs)
 * [NodeMCU](http://www.nodemcu.com/index_en.html)
 * [Wifi setup for the NodeMCU](http://henrysbench.capnfatz.com/henrys-bench/arduino-projects-tips-and-more/connect-nodemcu-esp-12e-to-wifi-router-using-arduino-ide/)
+* [Arduino IDE](https://www.arduino.cc/en/main/software)
+* [USB to UART Bridge Driver](https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers) (if you are using a mac this driver is needed in order for the Arduino IDE to be able to connect to microcontrollers through USB)
 * [AJAX-Calls](https://www.w3schools.com/js/js_ajax_intro.asp)
 
-# The curcuit
+# The Circuit
 >:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
 
 Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
@@ -43,7 +45,7 @@ On pin D0 we connect a simple switch, which is then connected to ground. We will
 
 Finally we add a small status LED on pin D1, so on/off state of the relay is visible on the housing as well.
 
-# The code
+# The Code
 First let's write the script that will run on the nodeMCU. You could program the node in Lua scripting language, however I prefer C-based arduino code, which works just as well. I wrote the code in the [arduino ide](https://www.arduino.cc/en/main/software) and flashed it onto the node directly from the ide. The complete script can be found in /code/relaisServer.ino
 
 Import libraries for accessing WiFi networks:
@@ -294,11 +296,23 @@ function switchDevice(){
 ```
 Notice how we use the NodeMCUs `/switch` handle as the destination of our request and also store the new state of the relay before updating our widget graphically.
 
+# Bringing it all together
+Now we need to add our Webinterface html file to the NodeMCU Script in the `handleRoot()` function, otherwise nothing will be displayed when we request the default file from the NodeMCU through our browser. 
+
+Since the NodeMCU doesn't have unlimited memory and I don't want to clutter up my C-like script with html and javascript markup too much I minified the html file. This means deleting all unnecessary white space and linebreaks. Since this makes the code very annoying to read or edit, make sure this is the last step in the process. 
+
+To minify the html I used a [handy online minifier tool](http://minifycode.com/html-minifier/). Once we have the minified html file we copy and paste it in the line `String message = "insert a minified version of our webinterface here later";` instead of the placeholder text we put there earlier.
+
+>:exclamation: Make sure that in your html and javascript you are not using `"` for enclosing strings, but rather `'`. this is because in the script our html code is just a string and having `"` inside a string will "break" it since they are the string deliminators. However having `'` inside a string will work just fine.
+
+Now all we need to do is connect the NodeMCU to our computer via USB and flash the script onto it using the Arduino IDE. Once the script is on the Node check the IDEs Serial Monitor to see the printouts of Wifi connection status and IP adress we added in `setup()`. Once you have the IP-adress try out your new wifi switchable power outlet by typing the IP-adress in the adress field of your browser :)
+
+
 # Final notes
-Now that is basically it. Now we can switch our relay from the web (Yay!). 
+Now that's basically it, we can switch our relay from the web (Yay!). 
 
 If you have access to the router of your network you might want to setup a permanent IP-address for the NodeMCU. That way people that will use the WebInterface can save the IP in a bookmark or something similar without having to worry about it changing everytime the DHCP server decides to renew the Nodes lease.
 
-A slightly fancier alternative would be to add an entry to your local DNS server, which sadly is not possible when you're in a homework run by a Fritzbox.
+Even fancier would be to add an entry to your local DNS server so that people could just type e.g. "awesomepoweroutlet.fritz.box" into their browser. If you're in a home network that uses a Fritzbox as its router [this setup guide](https://blog.lobraun.de/2015/05/03/static-ips-and-dns-names-for-devices-in-your-home-network/) will help you set this up.
 
-While I doubt, that the time I save by not having to get up to turn on my printer anymore is in any way equal to the time spent on building this it was fun to hack together and I hope the tutorial helps some others trying to do somehting similar. If there are any questions feel free to ask :)
+While I doubt, that the time I save by not having to get up to turn on my printer anymore in any way justifies the time spent building this it was fun to hack together and I hope the tutorial helps some others trying to do something similar. If there are any questions feel free to ask :)
