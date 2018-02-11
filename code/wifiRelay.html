@@ -1,0 +1,240 @@
+<html>
+<head>
+	<title>Wildgrubes Home Automation</title>
+	<meta charset = 'UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+	<script type='text/javascript'>
+		var switchState = false;
+		var switchWidgetState = false;
+
+		var switchWidget;
+
+		//intervall, jede Sekunde auf ./status zurückgreifen und button widget entsprechend aktualisieren
+		window.addEventListener('load', function(){
+			switchWidget = document.getElementsByClassName('switchWidget')[0];
+			switchWidget.addEventListener('click', switchDevice);
+
+			refreshStatus();
+			setInterval(refreshStatus, 500);
+		});
+
+		/**
+		* Queries the nodeMCU for the current switch state, writes it to the global siwtchState variable and updates the switchWidget
+		*/
+		function refreshStatus(){
+			var request = new XMLHttpRequest();
+			//console.log('Checking Device Status');
+
+			request.open('GET','/status');
+			request.addEventListener('load', function(event) {
+			   if (request.status >= 200 && request.status < 300) {
+			   	  //console.log('Status result: ' + request.responseText);
+			      switchState = (request.responseText === 'ON') ? true : false;
+			      //console.log('SwitchStateFlag = ' + switchState);
+			      updateSwitchWidget();
+			   } else {
+			      console.warn(request.statusText, request.responseText);
+			   }
+			});
+			request.send();	
+		}
+			
+
+		//Funktion, die widget switch handled
+			//Anfrage an ./switch
+			//Entsprechend der Antwort widget aktualisieren
+		function switchDevice(){
+			console.log('Switching the device!');
+			var request = new XMLHttpRequest();
+
+			request.open('GET','/switch');
+			request.addEventListener('load', function(event) {
+			   if (request.status >= 200 && request.status < 300) {
+			   	  //console.log('Switch result: ' + request.responseText);
+			      switchState = (request.responseText === 'ON') ? true : false;
+			      //console.log('SwitchStateFlag = ' + switchState);
+			      updateSwitchWidget();
+			   } else {
+			      console.warn(request.statusText, request.responseText);
+			   }
+			});
+			request.send();
+		}
+
+		
+		/**
+		* Aktualisiert das SwitchWidget entsprechend dem Wert des physischen Switch
+		*/
+		function updateSwitchWidget(){
+			if (switchState !== switchWidgetState) {
+				//Ball nach rechts verschieben (css-Animation)
+				//Farbe vom Hintergrund ändern
+				//console.log('Changing the WIDGET');
+				var offColor = 'linear-gradient(to right, rgba(102,102,102,1) 0%, rgba(48,48,48,1) 100%)';
+				var onColor = 'linear-gradient(to left, rgba(31,49,166,1) 0%, rgba(32,124,229,1) 100%)';
+
+				var bgWidth = switchWidget.offsetWidth;
+
+				var knob = switchWidget.getElementsByTagName('SPAN')[0];
+				var knobWidth = knob.offsetWidth;
+				
+				if (switchState === false){
+					console.log('Switched OFF - color: ' + offColor);
+					switchWidget.style.background = offColor;
+					knob.style.left = '1';
+				} else {
+					console.log('Switched ON - color: ' + onColor);
+					switchWidget.style.background = onColor;
+					var leftOffset = bgWidth - knobWidth - 1;
+					knob.style.left = leftOffset;
+				}
+				switchWidgetState = !switchWidgetState;
+			}
+		}
+	</script>
+
+	<style type='text/css'>
+
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background: white;
+			font-family: 'Trebuchet MS', Helvetica, sans-serif;
+		}
+
+		a {
+			color: #186ff2;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: #1975ff;
+			cursor: hand;
+			text-decoration: underline;
+		}
+
+		header {
+			background: linear-gradient(to right, rgba(32,124,229,1) 0%, rgba(31,49,166,1) 100%);
+			box-shadow: 0px 5px 14px -1px rgba(0,0,0,0.63);
+			position: fixed;
+			height: 60px;
+			text-align: center;
+			width: 100%;
+		}
+
+		header h3 {
+			color: white;
+			font-size: 28;
+			padding-top: 15;
+		}
+
+		.main {
+			width: 90%;
+			padding-top: 100px;
+			margin: auto;
+		}
+
+		.switchUnit {
+			margin-top: 20px;
+			border: 1px solid rgb(150,150,150);
+			border-radius: 5px;
+			background: linear-gradient(to right, rgba(222,222,222,1) 0%, rgba(240,240,240,1) 100%);
+			width: 45%;
+			padding: 15px;
+			color: rgb(50, 50, 50);
+		}
+
+		.location {
+			font-size: 14;
+			color: rgb(150, 150, 150);
+		}
+
+		.switchWidget {
+			position: relative;
+			margin-top: 10px;
+			width: 50px;
+			height: 25px;
+			border-radius: 25px;
+			border-color: #232323;
+			border-width: 1px;
+			background:  linear-gradient(to right, rgba(102,102,102,1) 0%, rgba(48,48,48,1) 100%);
+		}
+
+		.switchWidget span {
+			position: absolute;
+			left: 1;
+			top: 1;
+			border-radius: 100%;
+			border-width: 0;
+			background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+			width: 23px;
+			height: 23px;
+		}
+
+		.switchWidget:hover {
+			cursor: pointer;
+		}
+
+		footer {
+			background: linear-gradient(to right, rgba(37,42,46,1) 0%, rgba(1,27,46,1) 100%);
+			width: 100%;
+			height: 30px;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			color: white;
+			text-align: center;
+			padding-top: 15px;
+		}
+
+
+		@media screen and (max-width: 395px) {
+		    header {
+		        height: 100px;
+		    }
+
+		    .switchUnit {
+		    	width: inherit;
+		    }
+		
+		    .main {
+		       	width: 80%;
+				margin: auto;
+		    }
+		}
+
+		@media screen and (max-width: 270px) {
+		    footer {
+		        height: 100px;
+		    }
+		}
+
+	</style>
+
+
+</head>
+<body>
+	<header>
+		<h3>Wildgrube's Home Automation</h3>
+	</header>
+	<div class='main'>
+		<div class='switchUnit'>
+			<h2>Laserdrucker</h2>
+			<span class='location'>B&uuml;ro Keller</span>
+			<div class='switchWidget'>
+				<span><!--Circle--></span>
+			</div>
+		</div>
+		
+	</div>
+
+	<footer>
+		<div class='width80'>Developed by <a href='www.fabianwildgrube.de'>Fabian Wildgrube</a>, 2018</div>
+	</footer>
+
+</body>
+</html>
