@@ -4,10 +4,10 @@ In order to switch on a printer (or any other device for that matter) without ge
 <img src="/images/ScreenShot_Webinterface.png" width="250">
 
 # Basic idea
-The basic idea is to setup a minimal http-Server on the NodeMCU that hosts a website, which can pull the current status of the power line and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the box without an internet connection as well.
-The NodeMCU Script will therefore listen for http-requests and switch the relay (through the transistor) on calls fro the web, as well as if the physical switch if flipped.
+The basic idea is to setup a minimal http-Server on a NodeMCU that hosts a website, which can pull the current status of the power outlet and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the outlet without an internet connection as well.
+The NodeMCU will listen for http-requests and switch the relay on calls from the web, as well as if the physical switch is flipped.
 
-# What you need:
+# Parts you need:
 * 1 [NodeMCU](http://www.ebay.de/itm/NodeMCU-V3-Lua-WIFI-IOT-Node-Entwicklung-ESP8266-micro-USB-32bit-Arduino-E06-/172109878470)
 * 1 [Relais](https://www.ebay.de/itm/5V-1-Channel-Optocouplers-Relay-Shield-for-Arduino-Optokoppler-Relais-CP0401D/281661623000?hash=item4194574ad8:g:2KoAAOSwFLBaayRF)
 * 1 [PnP Transistor](http://www.ebay.de/itm/50x-BC547B-Transistor-NPN-45V-100mA-TO92-von-CDIL/290341478860?hash=item4399b361cc:g:XiEAAOSwd4tT6v7u)
@@ -19,6 +19,14 @@ The NodeMCU Script will therefore listen for http-requests and switch the relay 
 * Power cable
 * [Chandelier clamps](http://www.ebay.de/itm/Lusterklemmen-a-12-Lusterklemme-Verbindungsklemme-Klemme-Listerklemme-Lampe/253095147132)
 
+# Knowledge Requirements
+I will be using parts and constructs which would far exceed the scope of this tutorial to explain. If you are not familiar with some of these things, here is a list of links that helped me a lot:
+* [Relays](https://www.youtube.com/watch?v=b6ZagKRnRdM)
+* [Transistors](https://www.youtube.com/watch?v=UdAnUc7nXYs)
+* [NodeMCU](http://www.nodemcu.com/index_en.html)
+* [Wifi setup for the NodeMCU](http://henrysbench.capnfatz.com/henrys-bench/arduino-projects-tips-and-more/connect-nodemcu-esp-12e-to-wifi-router-using-arduino-ide/)
+* [AJAX-Calls](https://www.w3schools.com/js/js_ajax_intro.asp)
+
 # The curcuit
 >:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
 
@@ -27,7 +35,9 @@ See the fritzing diagram below for more detail on the circuit (The resistor valu
 
 ![Fritzing Diagram](/diagram/wifiRelaisFritzing_bb.png)
 
-We split off hot and neutral from mains to power the 230Vac - 5Vdc converter, which powers the nodeMCU. The relais takes 5V and ground as well. The third input pin of the relais is connected to pin D2 through a transistor. The transistor is needed to amplify the logic high voltage of 3.3V to around 5V because the relay won't switch consistently with just 3.3V. (This is somewhat odd, since it did switch just fine without the transistor, however only for a couple times. After about 5 times switching back and forth the relays just stopped working. As soon as I connected the input pin to 5V/ground it switched just fine. Once I added the transistor in, everything worked fine even when using the Nodes output pins)
+We split off hot and neutral from mains to power the 230Vac - 5Vdc converter, which powers the nodeMCU. The relay takes 5V and ground as well. 
+
+The third input pin of the relay is connected to pin D2 through a transistor. The transistor is needed to amplify the logic high voltage of 3.3V to around 5V because the relay won't switch consistently with just 3.3V. (This is somewhat odd, since it did switch just fine without the transistor, however only for a couple times. After about 5 times switching back and forth the relay just stopped working. As soon as I connected the input pin to 5V/ground it switched just fine. So I added the transistor to pull the 3.3V up to 5V).
 
 On pin D0 we connect a simple switch, which is then connected to ground. We will use this, to switch the relais by hand. Since we want the webinterface to show the correct status at all times, we run the switch as an input to the node, which manages all the switching of the relay.
 
@@ -64,7 +74,7 @@ Now lets create the small webserver. This is pretty simple thanks to the librari
 ESP8266WebServer server(80);
 ```
 
-Now lets create the heart of this script - a function that switches the relay. Since this particular relay switches from NC to NO on low (0V/Ground) we set the relay pin to 0 if the relay is off to turn it on and vice versa. (If you are not familiar with how a realy works [this video helped me a great deal](https://www.youtube.com/watch?v=b6ZagKRnRdM))
+Now lets create the heart of this script - a function that switches the relay. Since this particular relay switches from NC to NO on low (0V/Ground) we set the relay pin to 0 if the relay is off to turn it on and vice versa.
 Finally we update the status LED so it is always consistent with the relay's state.
 
 ```C
