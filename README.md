@@ -227,7 +227,7 @@ However, do not flash the script onto the NodeMCU just yet, because we still nee
 The basic web interface is pretty straightforward, just create a simple html file with some markup that resembles some sort of a switch. You can look at [my html](/code/wifiRelay.html) for inspiration if you want to, or just go completely crazy ;) 
 
 The interesting stuff happens in the javascript. Let's first set up a couple of global variables that hold the status of the relay and the status of our widget on the web interface as well as a variable for the widget itself so we can access it from all functions later on:
-```Javascript
+```JavaScript
 var switchState = false;
 var switchWidgetState = false;
 
@@ -235,7 +235,7 @@ var switchWidget;
 ```
 
 Remember we need the interface to always be in sync with the actual state of the relay. To do that let's write up a function that requests the `/status` handle on the NodeMCU and processes the answer:
-```Javascript
+```JavaScript
 function refreshStatus(){
 			var request = new XMLHttpRequest();
 			request.open('GET','/status');
@@ -253,7 +253,7 @@ function refreshStatus(){
 If you are not familiar with AJAX calls using the `XMLHttpRequest()` take a look at the [w3schools tutorials](https://www.w3schools.com/js/js_ajax_intro.asp).
 
 Notice how we just call the `updateSwitchWidget()` function after we stored the current state of the relay in our global variable. This for one simplifies the code inside the XMLHttpRequest and we also need to update the Switch Widgets appearance when the user clicks the widget later on. So it's smart to put the functionality of updatign the widget into a separate function right away:
-```Javascript
+```JavaScript
 function updateSwitchWidget(){
 	if (switchState !== switchWidgetState) {
 		if (switchState === false){
@@ -268,7 +268,7 @@ We just compare the state of the switchWidget with the actual relay information 
 
 All right, now we can keep the widget in sync with the actual relay. To always be in sync we need to call the `refreshStatus()` function repeatedly. To do this setup a listener on the window for the `load` event. This will ensure, that the entire DOM is loaded meaning we can actually access our widget.
 
-```Javascript
+```JavaScript
 window.addEventListener('load', function(){
 	switchWidget = document.getElementsByClassName('switchWidget')[0];
 	switchWidget.addEventListener('click', switchDevice);
@@ -279,7 +279,7 @@ window.addEventListener('load', function(){
 ```
 
 Now you can see that I also added an eventListener for the `click` event, that calls a function called `switchDevice` let's write that function, which sends a message to the node MCU to switch the relay:
-```Javascript
+```JavaScript
 function switchDevice(){
 	console.log('Switching the device!');
 	var request = new XMLHttpRequest();
