@@ -1,9 +1,7 @@
 # NodeMCU Wifi Enabled Power Outlet
 In order to switch on a printer (or any other device for that matter) without getting up from my computer I built a power outlet, that can be switched on and off through a simple web interface. 
 
-<img src="/images/ScreenShot_Webinterface.png" width="250">
-<img src="/images/IMG_0148.JPG" width="350">
-<img src="/images/IMG_0149.JPG" width="350">
+<img src="/images/ScreenShot_Webinterface.png" width="250"> <img src="/images/IMG_0148.JPG" width="350"><img src="/images/IMG_0149.JPG" width="350">
 
 # Basic idea
 The basic idea is to setup a minimal http-Server on a NodeMCU that hosts a website, which can pull the current status of the power outlet and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the outlet without an internet connection as well.
