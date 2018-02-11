@@ -42,7 +42,7 @@ void handleStatus(){
   server.send(200, "text/plain", message);
 }
 
-void handleSwitch(){
+void handleWebSwitch(){
   Serial.println("Switching the relay from web");
   switchRelay();
   String message = (relayOn) ? "ON" : "OFF";
@@ -95,7 +95,7 @@ void setup(void){
 
   server.on("/", handleRoot);
 
-  server.on("/switch", handleSwitch);
+  server.on("/switch", handleWebSwitch);
 
   server.on("/status", handleStatus);
 
@@ -105,7 +105,7 @@ void setup(void){
   Serial.println("HTTP server started");
 }
 
-void handleInputSwitch(){
+void handlePhysicalInputSwitch(){
   int currentInputState = digitalRead(switchInput);
   if (lastInputState != currentInputState){
     Serial.println("Switching the relay by hand");
@@ -116,5 +116,5 @@ void handleInputSwitch(){
 
 void loop(void){
   server.handleClient(); //Listen for Webinterface calls
-  handleInputSwitch(); //Listen for changes in the physical switch
+  handlePhysicalInputSwitch(); //Listen for changes in the physical switch
 }
