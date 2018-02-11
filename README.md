@@ -24,7 +24,44 @@ The basic idea is to setup a minimal http-Server on the NodeMCU that hosts a web
 The NodeMCU Script will therefore listen for http-requests and switch the relay (through the transistor) on calls fro the web, as well as if the physical switch if flipped.
 
 # The curcuit
-Since we have to cut open the mains wire anyway, we split of our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
+Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
 See the fritzing diagram below for more detail on the circuit (The resistor values might change for your setup depending on the transistor and LED models you use):
 
 ![Fritzing Diagram](/diagram/wifiRelaisFritzing_bb.png)
+
+We split off hot and neutral from mains to power the 230Vac - 5Vdc converter, which powers the nodeMCU. The relais takes 5V and ground as well. The third input pin of the relais is connected to pin D2 through a transistor. The transistor is needed to amplify the logic high voltage of 3.3V to around 5V because the relay won't switch consistently with just 3.3V. (This is somewhat odd, since it did switch just fine without the transistor, however only for a couple times. After about 5 times switching back and forth the relays just stopped working. As soon as I connected the input pin to 5V/ground it switched just fine. Once I added the transistor in, everything worked fine even when using the Nodes output pins)
+
+On pin D0 we connect a simple switch, which is then connected to ground. We will use this, to switch the relais by hand. Since we want the webinterface to show the correct status at all times, we run the switch as an input to the node, which manages all the switching of the relay.
+
+Finally we add a small status LED on pin D1, so on/off state of the relay is visible on the housing as well.
+
+# The code
+First let's write the script that will run on the nodeMCU. You could program the node in Lua scripting language, however I prefer C-based arduino code, which works just as well. I wrote the code in the [arduino ide](https://www.arduino.cc/en/main/software) and flashed it onto the node directly from the ide. The complete script can be found in /code/relaisServer.ino
+
+Import libraries for accessing WiFi networks:
+```C
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+```
+
+Create a couple of constants for wifi credentials, GPIO pins and two flags to store the relay's currentstate and the state of the input switch
+```C
+const char* ssid = "yourSSID";
+const char* password = "yourPassword";
+
+const int led = 16;
+const int relay = 4;
+const int switchInput = 5;
+
+bool relayOn = false;
+int lastInputState = 0;
+```
+>:information_source: Note that the nodeMCU pin numbers for D0, D1, and D2 are NOT 0, 1 and 2. Find a full list of the correct numbers for the pins [here](https://github.com/esp8266/Arduino/issues/584)
+
+Now lets create the small webserver. This is pretty simple thanks to the libraries we imported earlier. The parameter for the server() constructor specifies on which port the server should listen for clients, which we set to 80. This is the standard port for HTTP-Servers making it convenient to access the web interface by typing the IP-address of the node into the browser.
+
+```C
+ESP8266WebServer server(80);
+```
