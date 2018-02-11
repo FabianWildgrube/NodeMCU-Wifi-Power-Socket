@@ -261,8 +261,9 @@ function updateSwitchWidget(){
 		} else {
 			switchWidget.style.background = 'green';
 		}
-			switchWidgetState = !switchWidgetState;
-		}
+		switchWidgetState = !switchWidgetState;
+	}
+}
 ```
 We just compare the state of the switchWidget with the actual relay information and if the two are out of sync we change the appaerance of the widget.
 
