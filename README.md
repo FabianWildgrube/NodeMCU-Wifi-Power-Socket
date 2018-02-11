@@ -255,46 +255,45 @@ If you are not familiar with AJAX calls using the `XMLHttpRequest()` take a look
 Notice how we just call the `updateSwitchWidget()` function after we stored the current state of the relay in our global variable. This for one simplifies the code inside the XMLHttpRequest and we also need to update the Switch Widgets appearance when the user clicks the widget later on. So it's smart to put the functionality of updatign the widget into a separate function right away:
 ```Javascript
 function updateSwitchWidget(){
-			if (switchState !== switchWidgetState) {
-				if (switchState === false){
-					switchWidget.style.background = 'red'; //dummy colors, you can do something fun like an animation here as well
-				} else {
-					switchWidget.style.background = 'green';
-				}
-				switchWidgetState = !switchWidgetState;
-			}
+	if (switchState !== switchWidgetState) {
+		if (switchState === false){
+			switchWidget.style.background = 'red'; //dummy colors, you can do something fun like an animation here as well
+		} else {
+			switchWidget.style.background = 'green';
+		}
+			switchWidgetState = !switchWidgetState;
+		}
 ```
 We just compare the state of the switchWidget with the actual relay information and if the two are out of sync we change the appaerance of the widget.
 
 All right, now we can keep the widget in sync with the actual relay. To always be in sync we need to call the `refreshStatus()` function repeatedly. To do this setup a listener on the window for the `load` event. This will ensure, that the entire DOM is loaded meaning we can actually access our widget.
 
 ```Javascript
-	window.addEventListener('load', function(){
-			switchWidget = document.getElementsByClassName('switchWidget')[0];
-			switchWidget.addEventListener('click', switchDevice);
+window.addEventListener('load', function(){
+	switchWidget = document.getElementsByClassName('switchWidget')[0];
+	switchWidget.addEventListener('click', switchDevice);
 
-			refreshStatus();
-			setInterval(refreshStatus, 500);
-		});
+	refreshStatus();
+	setInterval(refreshStatus, 500);
+});
 ```
 
 Now you can see that I also added an eventListener for the `click` event, that calls a function called `switchDevice` let's write that function, which sends a message to the node MCU to switch the relay:
 ```Javascript
 function switchDevice(){
-			console.log('Switching the device!');
-			var request = new XMLHttpRequest();
-
-			request.open('GET','/switch');
-			request.addEventListener('load', function(event) {
-			   if (request.status >= 200 && request.status < 300) {
-			      switchState = (request.responseText === 'ON') ? true : false;
-			      updateSwitchWidget();
-			   } else {
-			      console.warn(request.statusText, request.responseText);
-			   }
-			});
-			request.send();
-		}
+	console.log('Switching the device!');
+	var request = new XMLHttpRequest();
+	request.open('GET','/switch');
+	request.addEventListener('load', function(event) {
+	   if (request.status >= 200 && request.status < 300) {
+	      switchState = (request.responseText === 'ON') ? true : false;
+	      updateSwitchWidget();
+	   } else {
+	      console.warn(request.statusText, request.responseText);
+	   }
+	});
+	request.send();
+}
 ```
 Notice how we use the NodeMCUs `/switch` handle as the destination of our request and also store the new state of the relay before updating our widget graphically.
 
