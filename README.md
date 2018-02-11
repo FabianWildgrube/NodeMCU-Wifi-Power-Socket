@@ -1,7 +1,7 @@
 # NodeMCU Wifi Enabled Power Outlet
 In order to switch on a printer (or any other device for that matter) without getting up from my computer I built a power outlet, that can be switched on and off through a simple web interface. 
 
-<img src="/images/ScreenShot_Webinterface.png" width="250"> <img src="/images/IMG_0148.JPG">
+<img src="/images/ScreenShot_Webinterface.png" width="250"> <img src="/images/IMG_0148.JPG" width="500">
 
 # Basic idea
 The basic idea is to setup a minimal http-Server on a NodeMCU that hosts a website, which can pull the current status of the power outlet and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the outlet without an internet connection as well.
@@ -34,20 +34,21 @@ I will be using parts and constructs which would far exceed the scope of this tu
 <img src="/images/IMG_0149.JPG">
 
 Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
-See the fritzing diagram below for more detail on the circuit (The resistor values might change for your setup depending on the transistor and LED models you use):
+See the fritzing diagram below for more detail on the circuit (The resistor values depend on the LED and transistor models you use, I used 330 Ohms on the LED and 220 Ohm on the Transistor):
 
 ![Fritzing Diagram](/diagram/wifiRelaisFritzing_bb.png)
 
 We split off hot and neutral from mains to power the 230Vac - 5Vdc converter, which powers the nodeMCU. The relay takes 5V and ground as well. 
 
 The third input pin of the relay is connected to pin D2 through a transistor. The transistor is needed to amplify the logic high voltage of 3.3V to around 5V because the relay won't switch consistently with just 3.3V. (This is somewhat odd, since it did switch just fine without the transistor, however only for a couple times. After about 5 times switching back and forth the relay just stopped working. As soon as I connected the input pin to 5V/ground it switched just fine. So I added the transistor to pull the 3.3V up to 5V).
+>:information_source: Notice that the relay I used switches from NC to NO if low/ground is supplied to the input pin. This means the transistor needs to supply 0V/Ground. If we switch the transistor it connects the input pin to ground thus switching the relay.
 
 On pin D0 we connect a simple switch, which is then connected to ground. We will use this, to switch the relais by hand. Since we want the webinterface to show the correct status at all times, we run the switch as an input to the node, which manages all the switching of the relay.
 
 Finally we add a small status LED on pin D1, so on/off state of the relay is visible on the housing as well.
 
 # The Code
-First let's write the script that will run on the nodeMCU. You could program the node in Lua scripting language, however I prefer C-based arduino code, which works just as well. I wrote the code in the [arduino ide](https://www.arduino.cc/en/main/software) and flashed it onto the node directly from the ide. The complete script can be found in /code/relaisServer.ino
+First let's write the script that will run on the nodeMCU. You could program the node in the Lua scripting language, however, I prefer C-based arduino code, which works just as well. I wrote the code in the [arduino ide](https://www.arduino.cc/en/main/software) and flashed it onto the node directly from the ide. The complete script can be found in [here](/code/relaisServer.ino).
 
 Import libraries for accessing WiFi networks:
 ```C
@@ -71,13 +72,13 @@ int lastInputState = 0;
 ```
 >:information_source: Note that the nodeMCU pin numbers for D0, D1, and D2 are NOT 0, 1 and 2. Find a full list of the correct numbers for the pins [here](https://github.com/esp8266/Arduino/issues/584)
 
-Now lets create the small webserver. This is pretty simple thanks to the libraries we imported earlier. The parameter for the server() constructor specifies on which port the server should listen for clients, which we set to 80. This is the standard port for HTTP-Servers making it convenient to access the web interface by typing the IP-address of the node into the browser.
+Now lets create the webserver. This is pretty simple thanks to the libraries we imported earlier. The parameter for the `server()` constructor specifies the port on which the server should listen for clients, which we set to 80. This is the standard port for HTTP-Servers, making it convenient to access the web interface by typing the IP-address of the node into the browser.
 
 ```C
 ESP8266WebServer server(80);
 ```
 
-Now lets create the heart of this script - a function that switches the relay. Since this particular relay switches from NC to NO on low (0V/Ground) we set the relay pin to 0 if the relay is off to turn it on and vice versa.
+Now lets create the heart of this script - a function that switches the relay. Although this particular relay switches from NC to NO on low (0V/Ground) we set the relay pin to 1 to turn it on and vice versa. Why? Because we have a transistor in between the relay and the NodeMCU and the transistor switches on high voltage supplied to the base! (But we still need to connect the transistor to ground so that switching it means making the relay's input pin electrically common with ground and thus switching the relay)
 Finally we update the status LED so it is always consistent with the relay's state.
 
 ```C
@@ -223,9 +224,9 @@ void loop(void){
 However, do not flash the script onto the NodeMCU just yet, because we still need to add our webinterface to the `handleRoot()`function!
 
 # The Web Interface
-The basic web interface is pretty straightforward, just create a simple html file with some markup that resembles some sort of a switch. You can look at my html for inspiration if you want to, or just go completely crazy. 
+The basic web interface is pretty straightforward, just create a simple html file with some markup that resembles some sort of a switch. You can look at [my html](/code/wifiRelay.html) for inspiration if you want to, or just go completely crazy ;) 
 
-The interesting stuff happens in the javascript. Let's first setup a couple of global variables that hold the status of the relay and the status of our widget on the web interface as well as a variable for the widget itself so we can access it from all functions later on:
+The interesting stuff happens in the javascript. Let's first set up a couple of global variables that hold the status of the relay and the status of our widget on the web interface as well as a variable for the widget itself so we can access it from all functions later on:
 ```Javascript
 var switchState = false;
 var switchWidgetState = false;
