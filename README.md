@@ -237,18 +237,18 @@ var switchWidget;
 Remember we need the interface to always be in sync with the actual state of the relay. To do that let's write up a function that requests the `/status` handle on the NodeMCU and processes the answer:
 ```JavaScript
 function refreshStatus(){
-			var request = new XMLHttpRequest();
-			request.open('GET','/status');
-			request.addEventListener('load', function(event) {
-			   if (request.status >= 200 && request.status < 300) {
-			      switchState = (request.responseText === 'ON') ? true : false;
-			      updateSwitchWidget();
-			   } else {
-			      console.warn(request.statusText, request.responseText);
-			   }
-			});
-			request.send();	
-		}
+	var request = new XMLHttpRequest();
+	request.open('GET','/status');
+	request.addEventListener('load', function(event) {
+	   if (request.status >= 200 && request.status < 300) {
+	      switchState = (request.responseText === 'ON') ? true : false;
+	      updateSwitchWidget();
+	   } else {
+	      console.warn(request.statusText, request.responseText);
+	   }
+	});
+	request.send();	
+}
 ```
 If you are not familiar with AJAX calls using the `XMLHttpRequest()` take a look at the [w3schools tutorials](https://www.w3schools.com/js/js_ajax_intro.asp).
 
