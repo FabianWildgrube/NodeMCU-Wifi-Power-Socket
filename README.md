@@ -1,11 +1,11 @@
 # NodeMCU Wifi Enabled Power Outlet
-Small IOT Project creating a wifi enabled Power outlet.
+In order to switch on a printer (or any other device for that matter) without getting up from my computer I built a power outlet, that can be switched on and off through a simple web interface. 
 
 <img src="/images/ScreenShot_Webinterface.png" width="250">
 
-In order to switch on a printer (or any other device for that matter) without getting up from my computer I built a power outlet, that can be switched on and off through a simple web interface. 
-
->:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
+# Basic idea
+The basic idea is to setup a minimal http-Server on the NodeMCU that hosts a website, which can pull the current status of the power line and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the box without an internet connection as well.
+The NodeMCU Script will therefore listen for http-requests and switch the relay (through the transistor) on calls fro the web, as well as if the physical switch if flipped.
 
 # What you need:
 * 1 [NodeMCU](http://www.ebay.de/itm/NodeMCU-V3-Lua-WIFI-IOT-Node-Entwicklung-ESP8266-micro-USB-32bit-Arduino-E06-/172109878470)
@@ -19,11 +19,9 @@ In order to switch on a printer (or any other device for that matter) without ge
 * Power cable
 * [Chandelier clamps](http://www.ebay.de/itm/Lusterklemmen-a-12-Lusterklemme-Verbindungsklemme-Klemme-Listerklemme-Lampe/253095147132)
 
-# Basic idea
-The basic idea is to setup a minimal http-Server on the NodeMCU that hosts a website, which can pull the current status of the power line and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the box without an internet connection as well.
-The NodeMCU Script will therefore listen for http-requests and switch the relay (through the transistor) on calls fro the web, as well as if the physical switch if flipped.
-
 # The curcuit
+>:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
+
 Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
 See the fritzing diagram below for more detail on the circuit (The resistor values might change for your setup depending on the transistor and LED models you use):
 
