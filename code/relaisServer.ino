@@ -6,14 +6,14 @@
 const char* ssid = "yourSSID";
 const char* password = "yourPassword";
 
-ESP8266WebServer server(80);
-
-const int led = 16;
+const int led = 5;
 const int relay = 4;
-const int switchInput = 5;
+const int switchInput = 16;
 
 bool relayOn = false;
 int lastInputState = 0;
+
+ESP8266WebServer server(80);
 
 void switchRelay(){
   if (relayOn){
