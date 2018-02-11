@@ -9,7 +9,7 @@ The NodeMCU will listen for http-requests and switch the relay on calls from the
 
 # Parts you need:
 * 1 [NodeMCU](http://www.ebay.de/itm/NodeMCU-V3-Lua-WIFI-IOT-Node-Entwicklung-ESP8266-micro-USB-32bit-Arduino-E06-/172109878470)
-* 1 [Relais](https://www.ebay.de/itm/5V-1-Channel-Optocouplers-Relay-Shield-for-Arduino-Optokoppler-Relais-CP0401D/281661623000?hash=item4194574ad8:g:2KoAAOSwFLBaayRF)
+* 1 [Relay](https://www.ebay.de/itm/5V-1-Channel-Optocouplers-Relay-Shield-for-Arduino-Optokoppler-Relais-CP0401D/281661623000?hash=item4194574ad8:g:2KoAAOSwFLBaayRF)
 * 1 [PnP Transistor](http://www.ebay.de/itm/50x-BC547B-Transistor-NPN-45V-100mA-TO92-von-CDIL/290341478860?hash=item4399b361cc:g:XiEAAOSwd4tT6v7u)
 * 2 Resistors (330 Ohm, 220 Ohm)
 * 1 [LED](https://www.ebay.de/itm/2-st-LED-5mm-kaltweis-5800-7000mcd-30-3-5V-20mA-Front-gewolbt/112641693157)
@@ -33,7 +33,7 @@ I will be using parts and constructs which would far exceed the scope of this tu
 >:exclamation: In this project we will be working with 230V mains power, which is very dangerous if not handled properly. Do not try to imitate this at home if you have not worked with mains power before!
 <img src="/images/IMG_0149.JPG">
 
-Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relais.
+Since we have to cut open the mains wire anyway, we split off our 5V power supply in parallel. From that we power the NodeMCU, and the relay.
 See the fritzing diagram below for more detail on the circuit (The resistor values depend on the LED and transistor models you use, I used 330 Ohms on the LED and 220 Ohm on the Transistor):
 
 ![Fritzing Diagram](/diagram/wifiRelaisFritzing_bb.png)
@@ -43,7 +43,7 @@ We split off hot and neutral from mains to power the 230Vac - 5Vdc converter, wh
 The third input pin of the relay is connected to pin D2 through a transistor. The transistor is needed to amplify the logic high voltage of 3.3V to around 5V because the relay won't switch consistently with just 3.3V. (This is somewhat odd, since it did switch just fine without the transistor, however only for a couple times. After about 5 times switching back and forth the relay just stopped working. As soon as I connected the input pin to 5V/ground it switched just fine. So I added the transistor to pull the 3.3V up to 5V).
 >:information_source: Notice that the relay I used switches from NC to NO if low/ground is supplied to the input pin. This means the transistor needs to supply 0V/Ground. If we switch the transistor it connects the input pin to ground thus switching the relay.
 
-On pin D0 we connect a simple switch, which is then connected to ground. We will use this, to switch the relais by hand. Since we want the webinterface to show the correct status at all times, we run the switch as an input to the node, which manages all the switching of the relay.
+On pin D0 we connect a simple switch, which is then connected to ground. We will use this, to switch the relay by hand. Since we want the webinterface to show the correct status at all times, we run the switch as an input to the node, which manages all the switching of the relay.
 
 Finally we add a small status LED on pin D1, so on/off state of the relay is visible on the housing as well.
 
