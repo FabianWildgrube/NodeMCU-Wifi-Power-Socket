@@ -5,7 +5,7 @@ In order to switch on a printer (or any other device for that matter) without ge
 
 # Basic idea
 The basic idea is to setup a minimal http-Server on a NodeMCU that hosts a website, which can pull the current status of the power outlet and switch it through AJAX-calls. For redundancy and ease of use we add a status LED and a physical switch to control the outlet without an internet connection as well.
-The NodeMCU will listen for http-requests and switch the relay on calls from the web, as well as if the physical switch is flipped.
+The NodeMCU will listen for http-requests and switch the relay on calls from the local network, as well as if the physical switch is flipped.
 
 # Parts you need:
 * 1 [NodeMCU](http://www.ebay.de/itm/NodeMCU-V3-Lua-WIFI-IOT-Node-Entwicklung-ESP8266-micro-USB-32bit-Arduino-E06-/172109878470)
